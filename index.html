@@ -1,0 +1,726 @@
+<!doctype html>
+<html lang="cs">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Domovka</title>
+<meta name="description" content="Prototyp aplikace Domovka – škoda bez zmatku">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32.png">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<meta name="apple-mobile-web-app-title" content="Domovka">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#F4F6F7">
+<meta name="apple-mobile-web-app-capable" content="yes">
+
+<style>
+@font-face{font-family:'IBM Plex Sans';font-style:normal;font-weight:400;font-display:swap;src:url(fonts/ibm-plex-sans-latin-ext-400-normal.woff2) format('woff2');unicode-range:U+0100-02AF,U+0304,U+0308,U+0329,U+1E00-1E9F,U+1EF2-1EFF,U+2020,U+20A0-20AB,U+20AD-20C0,U+2113,U+2C60-2C7F,U+A720-A7FF}
+@font-face{font-family:'IBM Plex Sans';font-style:normal;font-weight:400;font-display:swap;src:url(fonts/ibm-plex-sans-latin-400-normal.woff2) format('woff2');unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+2074,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
+@font-face{font-family:'IBM Plex Sans';font-style:normal;font-weight:500;font-display:swap;src:url(fonts/ibm-plex-sans-latin-ext-500-normal.woff2) format('woff2');unicode-range:U+0100-02AF,U+0304,U+0308,U+0329,U+1E00-1E9F,U+1EF2-1EFF,U+2020,U+20A0-20AB,U+20AD-20C0,U+2113,U+2C60-2C7F,U+A720-A7FF}
+@font-face{font-family:'IBM Plex Sans';font-style:normal;font-weight:500;font-display:swap;src:url(fonts/ibm-plex-sans-latin-500-normal.woff2) format('woff2');unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+2074,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
+@font-face{font-family:'IBM Plex Sans';font-style:normal;font-weight:600;font-display:swap;src:url(fonts/ibm-plex-sans-latin-ext-600-normal.woff2) format('woff2');unicode-range:U+0100-02AF,U+0304,U+0308,U+0329,U+1E00-1E9F,U+1EF2-1EFF,U+2020,U+20A0-20AB,U+20AD-20C0,U+2113,U+2C60-2C7F,U+A720-A7FF}
+@font-face{font-family:'IBM Plex Sans';font-style:normal;font-weight:600;font-display:swap;src:url(fonts/ibm-plex-sans-latin-600-normal.woff2) format('woff2');unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+2074,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
+@font-face{font-family:'IBM Plex Sans';font-style:normal;font-weight:700;font-display:swap;src:url(fonts/ibm-plex-sans-latin-ext-700-normal.woff2) format('woff2');unicode-range:U+0100-02AF,U+0304,U+0308,U+0329,U+1E00-1E9F,U+1EF2-1EFF,U+2020,U+20A0-20AB,U+20AD-20C0,U+2113,U+2C60-2C7F,U+A720-A7FF}
+@font-face{font-family:'IBM Plex Sans';font-style:normal;font-weight:700;font-display:swap;src:url(fonts/ibm-plex-sans-latin-700-normal.woff2) format('woff2');unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+2074,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
+/* Jedna obrazovka telefonu na celou plochu; na počítači uprostřed v rámu. Záměrně jen světlý vzhled, stejný jako aplikace. */
+:root{--ground:#F4F6F7;--desk:#DCE3E6;--ink:#14212B;--muted:#4B5A66;--teal:#0B6B6B;--line:#D9DEE2;--card:#FFFFFF;color-scheme:light}
+[hidden]{display:none!important}
+html,body{height:100%}
+body{margin:0;background:var(--desk);color:var(--ink);font-family:'IBM Plex Sans',system-ui,-apple-system,'Segoe UI',sans-serif;overflow:hidden}
+.stage{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;padding-block:max(16px,env(safe-area-inset-top,0px)) max(16px,env(safe-area-inset-bottom,0px));padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));box-sizing:border-box}
+.device{width:390px;height:844px;flex:none;transform-origin:center center;border-radius:36px;overflow:hidden;background:var(--ground);box-shadow:0 2px 6px rgba(20,33,43,.12),0 24px 60px rgba(20,33,43,.18)}
+.screen a,.screen button{cursor:pointer}
+.screen a:focus-visible,.screen button:focus-visible,.menu-btn:focus-visible,.mi:focus-visible,.close:focus-visible{outline:3px solid var(--teal);outline-offset:2px}
+@media (max-width:520px){body{background:var(--ground)}.device{border-radius:0;box-shadow:none}}
+.menu-btn{position:fixed;left:calc(6px + env(safe-area-inset-left,0px));top:50%;transform:translateY(-50%);width:36px;height:56px;border-radius:12px;border:1px solid var(--line);background:rgba(255,255,255,.85);color:var(--ink);display:flex;align-items:center;justify-content:center;opacity:.55;z-index:5}
+.menu-btn:hover{opacity:1}
+.sheet{position:fixed;inset:0;background:rgba(20,33,43,.45);display:none;align-items:flex-end;justify-content:center;z-index:20}
+.sheet.open{display:flex}
+.panel{width:100%;max-width:420px;max-height:85%;overflow:auto;background:var(--card);border-radius:20px 20px 0 0;padding:20px max(20px,env(safe-area-inset-right,0px)) calc(20px + env(safe-area-inset-bottom,0px)) max(20px,env(safe-area-inset-left,0px));box-sizing:border-box;display:flex;flex-direction:column;gap:10px}
+.panel h2{margin:0;font-size:18px}
+.grp{font-size:12px;font-weight:600;letter-spacing:.06em;color:var(--muted);margin-top:8px}
+.mi{display:flex;align-items:center;min-height:44px;padding:0 14px;border:1px solid var(--line);border-radius:12px;color:var(--ink);text-decoration:none;font-size:15px}
+.mi[aria-current="page"]{border:2px solid var(--teal);background:#E3F1F0;font-weight:600}
+.hint{font-size:13px;color:var(--muted);line-height:1.45;margin:4px 0 0}
+.phead{position:sticky;top:-20px;margin-top:-20px;padding-top:20px;padding-bottom:6px;background:var(--card);display:flex;align-items:center;justify-content:space-between;gap:12px;z-index:1}
+.close{display:flex;align-items:center;gap:6px;min-height:44px;padding:0 14px;border-radius:12px;border:1px solid var(--line);background:var(--card);color:var(--ink);font:inherit;font-weight:600}
+@media (prefers-reduced-motion:no-preference){.screen{animation:in .18s ease-out}@keyframes in{from{opacity:.4}to{opacity:1}}}
+</style>
+</head>
+<body>
+
+<div class="stage" id="stage"><div class="device" id="device">
+<section class="screen" data-screen="Domov" aria-label="Domov" hidden><div style="width: 390px; height: 844px; box-sizing: border-box; background: #F4F6F7; font-family: 'IBM Plex Sans', system-ui, sans-serif; color: #14212B; display: flex; flex-direction: column; padding: 24px 20px 20px; gap: 18px">
+<div style="display: flex; align-items: center; justify-content: space-between">
+<div style="display: flex; align-items: center; gap: 10px">
+<svg width="36" height="36" viewBox="0 0 100 100" role="img" aria-label="Domovka"><path d="M50 6 L94 42 Q96 44 96 47 V90 Q96 94 92 94 H8 Q4 94 4 90 V47 Q4 44 6 42 Z" fill="#0B6B6B"/><circle cx="50" cy="52" r="15" fill="#F4F6F7"/><path d="M44 60 L39 86 H61 L56 60 Z" fill="#F4F6F7"/></svg>
+<div style="display: flex; flex-direction: column; gap: 1px">
+<span style="font-size: 20px; font-weight: 600; letter-spacing: -0.02em; line-height: 1.1">Domovka</span>
+<span style="font-size: 12px; font-weight: 500; color: #0B6B6B">Škoda bez zmatku</span>
+</div>
+</div>
+<a href="#Jazyk" aria-label="Jazyk: čeština. Změnit jazyk" style="text-decoration: none; height: 44px; padding: 0 12px; border-radius: 12px; border: 1px solid #D9DEE2; background: #FFFFFF; color: #14212B; display: flex; align-items: center; gap: 6px; font-size: 14px; font-weight: 600">
+<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#14212B" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.5 2.7 3.8 5.7 3.8 9s-1.3 6.3-3.8 9c-2.5-2.7-3.8-5.7-3.8-9S9.5 5.7 12 3z"/></svg>
+CS
+</a>
+</div>
+<div style="display: flex; flex-direction: column; gap: 4px">
+<h1 style="margin: 0; font-size: 24px; line-height: 1.2; font-weight: 700">Dobrý den, Jano</h1>
+<p style="margin: 0; font-size: 15px; color: #4B5A66">Byt 2+kk · 3. patro · družstvo [název]</p>
+</div>
+<a href="#Main" style="text-decoration: none; display: flex; align-items: center; gap: 14px; background: #B42318; color: #FFFFFF; border-radius: 16px; padding: 18px">
+<span style="width: 48px; height: 48px; border-radius: 50%; background: rgba(255,255,255,0.18); display: flex; align-items: center; justify-content: center">
+<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l9 16H3z"/><path d="M12 10v4M12 17h.01"/></svg>
+</span>
+<span style="display: flex; flex-direction: column; gap: 2px">
+<span style="font-size: 18px; font-weight: 700">Stala se škoda</span>
+<span style="font-size: 13px; line-height: 1.35">Povedeme vás krok za krokem. Při ohrožení volejte 112.</span>
+</span>
+</a>
+<a href="#Trezor" style="text-decoration: none; color: #14212B; background: #FFFFFF; border: 1px solid #D9DEE2; border-radius: 16px; padding: 16px; display: flex; flex-direction: column; gap: 10px">
+<div style="display: flex; align-items: center; gap: 12px">
+<span style="width: 40px; height: 40px; border-radius: 10px; background: #E3F1F0; display: flex; align-items: center; justify-content: center"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#0B6B6B" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="12" cy="12" r="3.5"/><path d="M12 8.5V7M15.5 12H17"/></svg></span>
+<span style="display: flex; flex-direction: column; gap: 2px; flex: 1"><span style="font-size: 16px; font-weight: 600">Můj trezor</span><span style="font-size: 13px; color: #4B5A66">23 věcí · 14 dokladů · zálohováno dnes</span></span>
+<span style="font-size: 14px; font-weight: 600; color: #0B4F4F">68 %</span>
+</div>
+<div style="height: 6px; border-radius: 3px; background: #E6EAED; display: flex"><span style="width: 68%; border-radius: 3px; background: #0B6B6B"></span></div>
+</a>
+<a href="#Pasport" style="text-decoration: none; color: #14212B; background: #FFFFFF; border: 1px solid #D9DEE2; border-radius: 16px; padding: 16px; display: flex; align-items: center; gap: 12px">
+<span style="width: 40px; height: 40px; border-radius: 10px; background: #E3F1F0; display: flex; align-items: center; justify-content: center"><svg width="22" height="22" viewBox="0 0 100 100" aria-hidden="true"><path d="M50 6 L94 42 Q96 44 96 47 V90 Q96 94 92 94 H8 Q4 94 4 90 V47 Q4 44 6 42 Z" fill="none" stroke="#0B6B6B" stroke-width="8" stroke-linejoin="round"/><circle cx="50" cy="52" r="12" fill="#0B6B6B"/><path d="M45 58 L41 80 H59 L55 58 Z" fill="#0B6B6B"/></svg></span>
+<span style="display: flex; flex-direction: column; gap: 2px; flex: 1"><span style="font-size: 16px; font-weight: 600">Pasport bytu</span><span style="font-size: 13px; color: #4B5A66">Uzávěry, stav „před“, historie oprav</span></span>
+<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#14212B" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg>
+</a>
+<div style="display: flex; flex-direction: column; gap: 8px">
+<span style="font-size: 13px; font-weight: 600; color: #4B5A66">PŘIPOMÍNKY</span>
+<div style="background: #FFFFFF; border: 1px solid #D9DEE2; border-radius: 14px; padding: 12px 14px; display: flex; justify-content: space-between; gap: 12px; font-size: 14px"><span>Revize plynového kotle</span><span style="color: #8A4B00; font-weight: 500">za 12 dní</span></div>
+<div style="background: #FFFFFF; border: 1px solid #D9DEE2; border-radius: 14px; padding: 12px 14px; display: flex; justify-content: space-between; gap: 12px; font-size: 14px"><span>Končí záruka na myčku</span><span style="color: #4B5A66">v prosinci</span></div>
+</div>
+<div style="margin-top: auto; display: flex; gap: 10px; align-items: center; background: #FFFFFF; border: 1px solid #D9DEE2; border-radius: 14px; padding: 12px 14px">
+<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#0B6B6B" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 4h4l2 5-2.5 1.5a11 11 0 0 0 5 5L15 13l5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2"/></svg>
+<span style="font-size: 14px; line-height: 1.4; flex: 1">Havarijní služba vašeho domu: <b>[telefon]</b></span>
+</div>
+</div></section>
+<section class="screen" data-screen="Trezor" aria-label="Můj trezor" hidden><div style="width: 390px; height: 844px; box-sizing: border-box; background: #F4F6F7; font-family: 'IBM Plex Sans', system-ui, sans-serif; color: #14212B; display: flex; flex-direction: column; padding: 20px; gap: 14px">
+<div style="display: flex; align-items: center; gap: 12px">
+<a href="#Domov" aria-label="Zpět domů" style="width: 44px; height: 44px; border-radius: 12px; border: 1px solid #D9DEE2; background: #FFFFFF; display: flex; align-items: center; justify-content: center">
+<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#14212B" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 6l-6 6 6 6"/></svg>
+</a>
+<div style="display: flex; flex-direction: column; gap: 2px">
+<span style="font-size: 13px; color: #4B5A66">Patří vám, jde s vámi</span>
+<span style="font-size: 17px; font-weight: 600">Můj trezor</span>
+</div>
+<svg width="28" height="28" viewBox="0 0 100 100" role="img" aria-label="Domovka" style="margin-left: auto"><path d="M50 6 L94 42 Q96 44 96 47 V90 Q96 94 92 94 H8 Q4 94 4 90 V47 Q4 44 6 42 Z" fill="#0B6B6B"/><circle cx="50" cy="52" r="15" fill="#F4F6F7"/><path d="M44 60 L39 86 H61 L56 60 Z" fill="#F4F6F7"/></svg>
+</div>
+<div style="background: #0B6B6B; color: #FFFFFF; border-radius: 16px; padding: 16px; display: flex; flex-direction: column; gap: 10px">
+<div style="display: flex; align-items: center; gap: 10px">
+<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 18a4.5 4.5 0 0 1-.5-9A6 6 0 0 1 18 8a4 4 0 0 1 0 10z"/><path d="M9.5 13l2 2 3.5-4"/></svg>
+<span style="font-size: 16px; font-weight: 600">Zálohováno dnes 06:12</span>
+</div>
+<span style="font-size: 14px; line-height: 1.45">Šifrovaně mimo telefon. Když se něco stane, budete mít všechno pohromadě, i kdyby telefon shořel s bytem.</span>
+<span style="font-size: 13px; color: #CDEBEA">Sdíleno s: Petr · Trezor aktivní do [datum]</span>
+</div>
+<div style="display: flex; justify-content: space-between; align-items: baseline">
+<span style="font-size: 15px; font-weight: 600">Připraveno z 68 %</span>
+<span style="font-size: 13px; color: #4B5A66">Doplňte 5 dokladů</span>
+</div>
+<div style="height: 8px; border-radius: 4px; background: #E6EAED; display: flex; margin-top: -6px"><span style="width: 68%; border-radius: 4px; background: #0B6B6B"></span></div>
+<div style="background: #FFFFFF; border: 1px solid #D9DEE2; border-radius: 16px; display: flex; flex-direction: column">
+<a href="#Soupis" style="text-decoration: none; color: #14212B; display: flex; align-items: center; gap: 12px; padding: 14px; border-bottom: 1px solid #EEF1F3">
+<span style="width: 36px; height: 36px; border-radius: 10px; background: #E3F1F0; display: flex; align-items: center; justify-content: center"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#0B6B6B" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7l8-4 8 4-8 4z"/><path d="M4 7v10l8 4 8-4V7M12 11v10"/></svg></span>
+<span style="display: flex; flex-direction: column; gap: 2px; flex: 1"><span style="font-size: 15px; font-weight: 600">Soupis věcí</span><span style="font-size: 13px; color: #4B5A66">23 věcí v 5 místnostech</span></span>
+<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#14212B" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg>
+</a>
+<div style="display: flex; align-items: center; gap: 12px; padding: 14px; border-bottom: 1px solid #EEF1F3">
+<span style="width: 36px; height: 36px; border-radius: 10px; background: #E3F1F0; display: flex; align-items: center; justify-content: center"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#0B6B6B" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 3h9l4 4v14H6z"/><path d="M14 3v5h5M9 13h7M9 17h5"/></svg></span>
+<span style="display: flex; flex-direction: column; gap: 2px; flex: 1"><span style="font-size: 15px; font-weight: 600">Doklady a záruky</span><span style="font-size: 13px; color: #4B5A66">14 dokladů · 5 věcí bez dokladu</span></span>
+<span style="font-size: 12px; font-weight: 600; color: #8A4B00; background: #FFF4E5; border-radius: 8px; padding: 3px 8px">doplnit</span>
+</div>
+<div style="display: flex; align-items: center; gap: 12px; padding: 14px; border-bottom: 1px solid #EEF1F3">
+<span style="width: 36px; height: 36px; border-radius: 10px; background: #E3F1F0; display: flex; align-items: center; justify-content: center"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#0B6B6B" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l8 3v6c0 4.5-3.4 8-8 9-4.6-1-8-4.5-8-9V6z"/></svg></span>
+<span style="display: flex; flex-direction: column; gap: 2px; flex: 1"><span style="font-size: 15px; font-weight: 600">Pojistky</span><span style="font-size: 13px; color: #4B5A66">Domácnost · [pojišťovna] · č. smlouvy uloženo</span></span>
+</div>
+<div style="display: flex; align-items: center; gap: 12px; padding: 14px">
+<span style="width: 36px; height: 36px; border-radius: 10px; background: #E3F1F0; display: flex; align-items: center; justify-content: center"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#0B6B6B" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="8" r="3.5"/><path d="M3 20c0-3.3 2.7-6 6-6s6 2.7 6 6M16 4.5a3.5 3.5 0 0 1 0 7M18 14c2 .6 3 2.8 3 6"/></svg></span>
+<span style="display: flex; flex-direction: column; gap: 2px; flex: 1"><span style="font-size: 15px; font-weight: 600">Kontakty</span><span style="font-size: 13px; color: #4B5A66">Správce, havarijní služba, soused, pojišťovna</span></span>
+</div>
+</div>
+<button style="height: 52px; border-radius: 14px; border: 2px dashed #0B6B6B; background: transparent; color: #0B4F4F; font-family: inherit; font-size: 16px; font-weight: 600; display: flex; align-items: center; justify-content: center; gap: 8px">
+<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#0B6B6B" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>
+Vyfotit věc nebo účtenku
+</button>
+<p style="margin: auto 0 0; font-size: 12px; line-height: 1.4; color: #4B5A66">Trezor není pojištění. Neoceňuje majetek, nehodnotí výši pojistky a nezaručuje plnění. Zajistí, že budete mít podklady.</p>
+</div></section>
+<section class="screen" data-screen="Pasport" aria-label="Pasport bytu" hidden><div style="width: 390px; height: 844px; box-sizing: border-box; background: #F4F6F7; font-family: 'IBM Plex Sans', system-ui, sans-serif; color: #14212B; display: flex; flex-direction: column; padding: 20px; gap: 14px">
+<div style="display: flex; align-items: center; gap: 12px">
+<a href="#Domov" aria-label="Zpět domů" style="width: 44px; height: 44px; border-radius: 12px; border: 1px solid #D9DEE2; background: #FFFFFF; display: flex; align-items: center; justify-content: center">
+<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#14212B" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 6l-6 6 6 6"/></svg>
+</a>
+<div style="display: flex; flex-direction: column; gap: 2px">
+<span style="font-size: 13px; color: #4B5A66">Patří bytu, zůstává v něm</span>
+<span style="font-size: 17px; font-weight: 600">Pasport bytu</span>
+</div>
+<svg width="28" height="28" viewBox="0 0 100 100" role="img" aria-label="Domovka" style="margin-left: auto"><path d="M50 6 L94 42 Q96 44 96 47 V90 Q96 94 92 94 H8 Q4 94 4 90 V47 Q4 44 6 42 Z" fill="#0B6B6B"/><circle cx="50" cy="52" r="15" fill="#F4F6F7"/><path d="M44 60 L39 86 H61 L56 60 Z" fill="#F4F6F7"/></svg>
+</div>
+<div style="background: #FFFFFF; border: 1px solid #D9DEE2; border-radius: 16px; padding: 14px; display: flex; flex-direction: column; gap: 4px">
+<span style="font-size: 16px; font-weight: 600">Byt 2+kk, 3. patro</span>
+<span style="font-size: 13px; color: #4B5A66">[adresa] · družstvo [název] · 54 m²</span>
+</div>
+<div style="display: flex; flex-direction: column; gap: 8px">
+<div style="display: flex; justify-content: space-between; align-items: baseline"><span style="font-size: 13px; font-weight: 600; color: #4B5A66">MAPA DOMÁCNOSTI – KDE CO ZASTAVIT</span><a href="#Mapa" style="font-size: 13px; font-weight: 600; color: #0B4F4F; text-decoration: none">Na půdorysu →</a></div>
+<div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px">
+<div style="background: #FFFFFF; border: 1px solid #D9DEE2; border-radius: 12px; overflow: hidden; display: flex; flex-direction: column">
+<div style="height: 72px; background: #C9D6DC"></div>
+<div style="padding: 8px; display: flex; flex-direction: column; gap: 2px"><span style="font-size: 13px; font-weight: 600">Voda</span><span style="font-size: 12px; color: #4B5A66">Koupelna, za dvířky u WC</span></div>
+</div>
+<div style="background: #FFFFFF; border: 1px solid #D9DEE2; border-radius: 12px; overflow: hidden; display: flex; flex-direction: column">
+<div style="height: 72px; background: #BFCDD4"></div>
+<div style="padding: 8px; display: flex; flex-direction: column; gap: 2px"><span style="font-size: 13px; font-weight: 600">Plyn</span><span style="font-size: 12px; color: #4B5A66">Kuchyň, pod linkou</span></div>
+</div>
+<div style="background: #FFFFFF; border: 1px solid #D9DEE2; border-radius: 12px; overflow: hidden; display: flex; flex-direction: column">
+<div style="height: 72px; background: #B4C4CC"></div>
+<div style="padding: 8px; display: flex; flex-direction: column; gap: 2px"><span style="font-size: 13px; font-weight: 600">Jističe</span><span style="font-size: 12px; color: #4B5A66">Předsíň, nad dveřmi</span></div>
+</div>
+</div>
+</div>
+<div style="background: #FFFFFF; border: 1px solid #D9DEE2; border-radius: 14px; padding: 12px 14px; display: flex; align-items: center; gap: 12px">
+<span style="width: 36px; height: 36px; border-radius: 10px; background: #E3F1F0; display: flex; align-items: center; justify-content: center"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#0B6B6B" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></svg></span>
+<span style="display: flex; flex-direction: column; gap: 2px; flex: 1"><span style="font-size: 15px; font-weight: 600">Stav „před“</span><span style="font-size: 13px; color: #4B5A66">5 místností nafoceno · [datum]</span></span>
+<span style="font-size: 13px; font-weight: 600; color: #0B4F4F">Aktualizovat</span>
+</div>
+<div style="display: flex; flex-direction: column; gap: 8px">
+<span style="font-size: 13px; font-weight: 600; color: #4B5A66">HISTORIE ŠKOD A OPRAV</span>
+<div style="background: #FFFFFF; border: 1px solid #D9DEE2; border-radius: 14px; padding: 12px 14px; display: flex; flex-direction: column; gap: 12px">
+<div style="display: flex; gap: 12px">
+<span style="width: 10px; height: 10px; border-radius: 50%; background: #0B6B6B; margin-top: 5px; flex-shrink: 0"></span>
+<div style="display: flex; flex-direction: column; gap: 2px"><span style="font-size: 14px; font-weight: 600">Výměna sifonu pod umyvadlem</span><span style="font-size: 13px; color: #4B5A66">[instalatér ze sítě domu] · zapsal instalatér · faktura přiložena</span></div>
+</div>
+<div style="display: flex; gap: 12px">
+<span style="width: 10px; height: 10px; border-radius: 50%; background: #B8C1C8; margin-top: 5px; flex-shrink: 0"></span>
+<div style="display: flex; flex-direction: column; gap: 2px"><span style="font-size: 14px; font-weight: 600">Voda z bytu nad námi</span><span style="font-size: 13px; color: #4B5A66">Případ uzavřen · číslo škody uloženo · oprava stropu</span></div>
+</div>
+</div>
+</div>
+<div style="margin-top: auto; display: flex; flex-direction: column; gap: 8px">
+<button style="height: 52px; border-radius: 14px; border: none; background: #14212B; color: #FFFFFF; font-family: inherit; font-size: 16px; font-weight: 600">Předat pasport (prodej, nový nájemník)</button>
+<span style="font-size: 12px; line-height: 1.4; color: #4B5A66; text-align: center">Předává se jen pasport bytu. Váš trezor (věci, doklady, pojistky) zůstává vám.</span>
+</div>
+</div></section>
+<section class="screen" data-screen="Mapa" aria-label="Mapa domácnosti" hidden><div style="width: 390px; height: 844px; box-sizing: border-box; background: #F4F6F7; font-family: 'IBM Plex Sans', system-ui, sans-serif; color: #14212B; display: flex; flex-direction: column; padding: 20px; gap: 12px">
+<div style="display: flex; align-items: center; gap: 12px">
+<a href="#Pasport" aria-label="Zpět na pasport" style="width: 44px; height: 44px; border-radius: 12px; border: 1px solid #D9DEE2; background: #FFFFFF; display: flex; align-items: center; justify-content: center">
+<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#14212B" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 6l-6 6 6 6"/></svg>
+</a>
+<div style="display: flex; flex-direction: column; gap: 2px">
+<span style="font-size: 13px; color: #4B5A66">Pasport bytu · půdorys od realitky</span>
+<span style="font-size: 17px; font-weight: 600">Mapa domácnosti</span>
+</div>
+<svg width="28" height="28" viewBox="0 0 100 100" role="img" aria-label="Domovka" style="margin-left: auto"><path d="M50 6 L94 42 Q96 44 96 47 V90 Q96 94 92 94 H8 Q4 94 4 90 V47 Q4 44 6 42 Z" fill="#0B6B6B"/><circle cx="50" cy="52" r="15" fill="#F4F6F7"/><path d="M44 60 L39 86 H61 L56 60 Z" fill="#F4F6F7"/></svg>
+</div>
+<div style="background: #FFF4E5; border: 1px solid #F3C98B; border-radius: 12px; padding: 10px 12px; display: flex; gap: 10px; align-items: flex-start">
+<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#8A4B00" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="flex-shrink: 0; margin-top: 2px"><path d="M12 3l1.8 4.7L18.5 9.5l-4.7 1.8L12 16l-1.8-4.7L5.5 9.5l4.7-1.8z"/><path d="M19 15l.8 2.2L22 18l-2.2.8L19 21l-.8-2.2L16 18l2.2-.8z"/></svg>
+<span style="font-size: 13px; line-height: 1.4; color: #5C3300"><b>AI navrhla 2 místa.</b> Ověřte je a přetáhněte na správné místo. Neověřené body v krizi neukazujeme.</span>
+</div>
+<div style="background: #FFFFFF; border: 1px solid #D9DEE2; border-radius: 16px; padding: 10px">
+<svg width="330" height="262" viewBox="0 0 340 270" role="img" aria-label="Půdorys bytu 2+kk se špendlíky uzávěrů a spotřebičů">
+<rect x="10" y="10" width="320" height="250" fill="#FFFFFF" stroke="#14212B" stroke-width="4"/>
+<path d="M200 10 V150 M10 150 H330 M150 150 V260 M250 150 V260" stroke="#14212B" stroke-width="2.5" fill="none"/>
+<path d="M120 150 H140 M210 150 H230 M150 200 V220 M250 200 V220" stroke="#FFFFFF" stroke-width="4"/>
+<text x="100" y="80" text-anchor="middle" font-size="13" fill="#4B5A66" font-family="IBM Plex Sans, sans-serif">Obývák + kuchyň</text>
+<text x="265" y="80" text-anchor="middle" font-size="13" fill="#4B5A66" font-family="IBM Plex Sans, sans-serif">Pokoj</text>
+<text x="80" y="210" text-anchor="middle" font-size="13" fill="#4B5A66" font-family="IBM Plex Sans, sans-serif">Předsíň</text>
+<text x="200" y="174" text-anchor="middle" font-size="12" fill="#4B5A66" font-family="IBM Plex Sans, sans-serif">Koupelna</text>
+<text x="290" y="174" text-anchor="middle" font-size="12" fill="#4B5A66" font-family="IBM Plex Sans, sans-serif">Komora</text>
+<circle cx="35" cy="36" r="12" fill="#0B6B6B"/><text x="35" y="41" text-anchor="middle" font-size="13" font-weight="700" fill="#FFFFFF" font-family="IBM Plex Sans, sans-serif">2</text>
+<circle cx="225" cy="238" r="12" fill="#0B6B6B"/><text x="225" y="243" text-anchor="middle" font-size="13" font-weight="700" fill="#FFFFFF" font-family="IBM Plex Sans, sans-serif">1</text>
+<circle cx="32" cy="238" r="12" fill="#0B6B6B"/><text x="32" y="243" text-anchor="middle" font-size="13" font-weight="700" fill="#FFFFFF" font-family="IBM Plex Sans, sans-serif">3</text>
+<circle cx="175" cy="200" r="12" fill="#0B6B6B"/><text x="175" y="205" text-anchor="middle" font-size="13" font-weight="700" fill="#FFFFFF" font-family="IBM Plex Sans, sans-serif">4</text>
+<circle cx="290" cy="215" r="12" fill="#FFF4E5" stroke="#B54708" stroke-width="2" stroke-dasharray="4 3"/><text x="290" y="220" text-anchor="middle" font-size="13" font-weight="700" fill="#8A4B00" font-family="IBM Plex Sans, sans-serif">5</text>
+<circle cx="75" cy="36" r="12" fill="#FFF4E5" stroke="#B54708" stroke-width="2" stroke-dasharray="4 3"/><text x="75" y="41" text-anchor="middle" font-size="13" font-weight="700" fill="#8A4B00" font-family="IBM Plex Sans, sans-serif">6</text>
+</svg>
+</div>
+<div style="background: #FFFFFF; border: 1px solid #D9DEE2; border-radius: 16px; display: flex; flex-direction: column; font-size: 14px">
+<div style="display: flex; align-items: center; gap: 10px; padding: 9px 12px; border-bottom: 1px solid #EEF1F3"><span style="width: 22px; height: 22px; border-radius: 50%; background: #0B6B6B; color: #FFFFFF; font-size: 12px; font-weight: 700; display: flex; align-items: center; justify-content: center">1</span><span style="flex: 1; font-weight: 600">Uzávěr vody</span><span style="color: #4B5A66">ověřeno · foto</span></div>
+<div style="display: flex; align-items: center; gap: 10px; padding: 9px 12px; border-bottom: 1px solid #EEF1F3"><span style="width: 22px; height: 22px; border-radius: 50%; background: #0B6B6B; color: #FFFFFF; font-size: 12px; font-weight: 700; display: flex; align-items: center; justify-content: center">2</span><span style="flex: 1; font-weight: 600">Uzávěr plynu</span><span style="color: #4B5A66">ověřeno · foto</span></div>
+<div style="display: flex; align-items: center; gap: 10px; padding: 9px 12px; border-bottom: 1px solid #EEF1F3"><span style="width: 22px; height: 22px; border-radius: 50%; background: #0B6B6B; color: #FFFFFF; font-size: 12px; font-weight: 700; display: flex; align-items: center; justify-content: center">3</span><span style="flex: 1; font-weight: 600">Jističe</span><span style="color: #4B5A66">ověřeno · foto</span></div>
+<div style="display: flex; align-items: center; gap: 10px; padding: 9px 12px; border-bottom: 1px solid #EEF1F3"><span style="width: 22px; height: 22px; border-radius: 50%; background: #0B6B6B; color: #FFFFFF; font-size: 12px; font-weight: 700; display: flex; align-items: center; justify-content: center">4</span><span style="flex: 1">Pračka</span><span style="color: #4B5A66">z trezoru</span></div>
+<div style="display: flex; align-items: center; gap: 10px; padding: 9px 12px; border-bottom: 1px solid #EEF1F3"><span style="width: 22px; height: 22px; border-radius: 50%; border: 2px dashed #B54708; box-sizing: border-box; color: #8A4B00; font-size: 12px; font-weight: 700; display: flex; align-items: center; justify-content: center">5</span><span style="flex: 1">Kotel <span style="color: #8A4B00">(návrh AI)</span></span><span style="font-weight: 600; color: #0B4F4F">Ověřit</span></div>
+<div style="display: flex; align-items: center; gap: 10px; padding: 9px 12px"><span style="width: 22px; height: 22px; border-radius: 50%; border: 2px dashed #B54708; box-sizing: border-box; color: #8A4B00; font-size: 12px; font-weight: 700; display: flex; align-items: center; justify-content: center">6</span><span style="flex: 1">Myčka <span style="color: #8A4B00">(návrh AI)</span></span><span style="font-weight: 600; color: #0B4F4F">Ověřit</span></div>
+</div>
+<div style="margin-top: auto; display: flex; gap: 8px">
+<button style="flex: 1; height: 52px; border-radius: 14px; border: 1px solid #D9DEE2; background: #FFFFFF; color: #14212B; font-family: inherit; font-size: 15px; font-weight: 500">Nahrát jiný plánek</button>
+<button style="flex: 1.3; height: 52px; border-radius: 14px; border: none; background: #14212B; color: #FFFFFF; font-family: inherit; font-size: 15px; font-weight: 600">Přidat místo</button>
+</div>
+</div></section>
+<section class="screen" data-screen="Main" aria-label="Co se stalo" hidden><div style="width: 390px; height: 844px; box-sizing: border-box; background: #F4F6F7; font-family: 'IBM Plex Sans', system-ui, sans-serif; color: #14212B; display: flex; flex-direction: column; padding: 24px 20px 20px; gap: 20px">
+<div style="display: flex; align-items: center; justify-content: space-between">
+<div style="display: flex; align-items: center; gap: 10px">
+<svg width="36" height="36" viewBox="0 0 100 100" role="img" aria-label="Domovka"><path d="M50 6 L94 42 Q96 44 96 47 V90 Q96 94 92 94 H8 Q4 94 4 90 V47 Q4 44 6 42 Z" fill="#0B6B6B"/><circle cx="50" cy="52" r="15" fill="#F4F6F7"/><path d="M44 60 L39 86 H61 L56 60 Z" fill="#F4F6F7"/></svg>
+<div style="display: flex; flex-direction: column; gap: 1px">
+<span style="font-size: 20px; font-weight: 600; letter-spacing: -0.02em; line-height: 1.1">Domovka</span>
+<span style="font-size: 12px; font-weight: 500; color: #0B6B6B">Škoda bez zmatku · funguje i bez signálu</span>
+</div>
+</div>
+<div style="display: flex; gap: 8px">
+<a href="#Jazyk" aria-label="Jazyk: čeština. Změnit jazyk" style="text-decoration: none; height: 44px; padding: 0 12px; border-radius: 12px; border: 1px solid #D9DEE2; background: #FFFFFF; color: #14212B; display: flex; align-items: center; gap: 6px; font-size: 14px; font-weight: 600">
+<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#14212B" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.5 2.7 3.8 5.7 3.8 9s-1.3 6.3-3.8 9c-2.5-2.7-3.8-5.7-3.8-9S9.5 5.7 12 3z"/></svg>
+CS
+</a>
+<button aria-label="Nabídka" style="width: 44px; height: 44px; border-radius: 12px; border: 1px solid #D9DEE2; background: #FFFFFF; display: flex; align-items: center; justify-content: center">
+<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#14212B" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
+</button>
+</div>
+</div>
+<a href="#Bezpecnost" style="text-decoration: none; display: flex; align-items: center; gap: 14px; background: #B42318; color: #FFFFFF; border-radius: 16px; padding: 16px 18px">
+<span style="width: 48px; height: 48px; border-radius: 50%; background: rgba(255,255,255,0.18); display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 17px">112</span>
+<span style="display: flex; flex-direction: column; gap: 2px">
+<span style="font-size: 17px; font-weight: 600">Je někdo v ohrožení?</span>
+<span style="font-size: 13px; line-height: 1.35">Odejděte do bezpečí a volejte. Majetek počká.</span>
+</span>
+</a>
+<div style="display: flex; flex-direction: column; gap: 6px">
+<h1 style="margin: 0; font-size: 26px; line-height: 1.2; font-weight: 700">Co se stalo?</h1>
+<p style="margin: 0; font-size: 15px; line-height: 1.45; color: #4B5A66">Vyberte, co nejvíc sedí. Povedeme vás krok za krokem.</p>
+</div>
+<div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px">
+<a href="#Bezpecnost" style="text-decoration: none; color: #14212B; background: #FFFFFF; border: 2px solid #0B6B6B; border-radius: 16px; padding: 16px; display: flex; flex-direction: column; gap: 10px; min-height: 104px; box-sizing: border-box">
+<svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#0B6B6B" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3c3 4 6 7.5 6 11a6 6 0 0 1-12 0c0-3.5 3-7 6-11z"/></svg>
+<span style="font-size: 16px; font-weight: 600">Voda, vytopení</span>
+</a>
+<a href="#Bezpecnost" style="text-decoration: none; color: #14212B; background: #FFFFFF; border: 1px solid #D9DEE2; border-radius: 16px; padding: 16px; display: flex; flex-direction: column; gap: 10px; min-height: 104px; box-sizing: border-box">
+<svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#14212B" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21c-4 0-7-2.7-7-6.5 0-3 2-5 3.5-6.5.3 2 1.5 3 2.5 3 0-3 1-6 4-8 0 4 5 6 5 11.5 0 3.8-3 6.5-8 6.5z"/></svg>
+<span style="font-size: 16px; font-weight: 600">Požár, kouř, výbuch</span>
+</a>
+<a href="#Bezpecnost" style="text-decoration: none; color: #14212B; background: #FFFFFF; border: 1px solid #D9DEE2; border-radius: 16px; padding: 16px; display: flex; flex-direction: column; gap: 10px; min-height: 104px; box-sizing: border-box">
+<svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#14212B" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 9h11a3 3 0 1 0-3-3M3 14h15a3 3 0 1 1-3 3M3 19h7"/></svg>
+<span style="font-size: 16px; font-weight: 600">Vichřice, kroupy, povodeň</span>
+</a>
+<a href="#Bezpecnost" style="text-decoration: none; color: #14212B; background: #FFFFFF; border: 1px solid #D9DEE2; border-radius: 16px; padding: 16px; display: flex; flex-direction: column; gap: 10px; min-height: 104px; box-sizing: border-box">
+<svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#14212B" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 7.5-2"/></svg>
+<span style="font-size: 16px; font-weight: 600">Krádež, vandalismus</span>
+</a>
+<a href="#Bezpecnost" style="text-decoration: none; color: #14212B; background: #FFFFFF; border: 1px solid #D9DEE2; border-radius: 16px; padding: 16px; display: flex; flex-direction: column; gap: 10px; min-height: 104px; box-sizing: border-box">
+<svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#14212B" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="8" cy="8" r="3"/><circle cx="17" cy="9" r="2.5"/><path d="M3 20c0-3 2.5-5 5-5s5 2 5 5M14 20c0-2.2 1.5-4 3.5-4S21 17.8 21 20"/></svg>
+<span style="font-size: 16px; font-weight: 600">Škoda někomu jinému</span>
+</a>
+<a href="#Bezpecnost" style="text-decoration: none; color: #14212B; background: #FFFFFF; border: 1px solid #D9DEE2; border-radius: 16px; padding: 16px; display: flex; flex-direction: column; gap: 10px; min-height: 104px; box-sizing: border-box">
+<svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#14212B" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M9.5 9.5a2.5 2.5 0 1 1 3.5 2.3c-.6.3-1 .9-1 1.6V14M12 17.5h.01"/></svg>
+<span style="font-size: 16px; font-weight: 600">Jiné / nevím</span>
+</a>
+</div>
+<div style="margin-top: auto; display: flex; flex-direction: column; gap: 8px">
+<a href="#Pripad" style="text-decoration: none; display: flex; align-items: center; justify-content: space-between; background: #FFFFFF; border: 1px solid #D9DEE2; border-radius: 14px; padding: 14px 16px; color: #14212B">
+<span style="display: flex; flex-direction: column; gap: 2px">
+<span style="font-size: 15px; font-weight: 600">Pokračovat v rozpracovaném případu</span>
+<span style="font-size: 13px; color: #4B5A66">Voda v koupelně · založeno dnes 07:32</span>
+</span>
+<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#14212B" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg>
+</a>
+<p style="margin: 0; font-size: 12px; line-height: 1.4; color: #4B5A66">Obecná procesní pomůcka. Nehodnotí pojistné krytí a nenahrazuje pokyny IZS ani pojišťovny.</p>
+</div>
+</div></section>
+<section class="screen" data-screen="Jazyk" aria-label="Jazyk a země" hidden><div style="width: 390px; height: 844px; box-sizing: border-box; background: #F4F6F7; font-family: 'IBM Plex Sans', system-ui, sans-serif; color: #14212B; display: flex; flex-direction: column; padding: 20px; gap: 16px">
+<div style="display: flex; align-items: center; gap: 12px">
+<a href="#Main" aria-label="Zpět" style="width: 44px; height: 44px; border-radius: 12px; border: 1px solid #D9DEE2; background: #FFFFFF; display: flex; align-items: center; justify-content: center">
+<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#14212B" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 6l-6 6 6 6"/></svg>
+</a>
+<div style="display: flex; flex-direction: column; gap: 2px">
+<span style="font-size: 13px; color: #4B5A66">Language · Sprache · Lingua · Język · Idioma</span>
+<span style="font-size: 17px; font-weight: 600">Jazyk a země</span>
+</div>
+<svg width="28" height="28" viewBox="0 0 100 100" role="img" aria-label="Domovka" style="margin-left: auto"><path d="M50 6 L94 42 Q96 44 96 47 V90 Q96 94 92 94 H8 Q4 94 4 90 V47 Q4 44 6 42 Z" fill="#0B6B6B"/><circle cx="50" cy="52" r="15" fill="#F4F6F7"/><path d="M44 60 L39 86 H61 L56 60 Z" fill="#F4F6F7"/></svg>
+</div>
+<span style="font-size: 13px; font-weight: 600; color: #4B5A66">JAZYK APLIKACE</span>
+<div style="background: #FFFFFF; border: 1px solid #D9DEE2; border-radius: 16px; display: flex; flex-direction: column">
+<a href="#Main" lang="cs" style="text-decoration: none; color: #14212B; display: flex; align-items: center; gap: 12px; padding: 12px 14px; min-height: 52px; box-sizing: border-box; border-bottom: 1px solid #EEF1F3; background: #E3F1F0">
+<span style="width: 36px; height: 28px; border-radius: 8px; background: #0B6B6B; color: #FFFFFF; font-size: 12px; font-weight: 700; display: flex; align-items: center; justify-content: center">CS</span>
+<span style="font-size: 16px; font-weight: 600; flex: 1">Čeština</span>
+<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#0B6B6B" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-label="Vybráno" role="img"><path d="M5 12l5 5 9-10"/></svg>
+</a>
+<a href="#Main" lang="en" style="text-decoration: none; color: #14212B; display: flex; align-items: center; gap: 12px; padding: 12px 14px; min-height: 52px; box-sizing: border-box; border-bottom: 1px solid #EEF1F3">
+<span style="width: 36px; height: 28px; border-radius: 8px; border: 1px solid #B8C1C8; box-sizing: border-box; font-size: 12px; font-weight: 700; color: #4B5A66; display: flex; align-items: center; justify-content: center">EN</span>
+<span style="font-size: 16px; flex: 1">English</span>
+</a>
+<a href="#Main" lang="de" style="text-decoration: none; color: #14212B; display: flex; align-items: center; gap: 12px; padding: 12px 14px; min-height: 52px; box-sizing: border-box; border-bottom: 1px solid #EEF1F3">
+<span style="width: 36px; height: 28px; border-radius: 8px; border: 1px solid #B8C1C8; box-sizing: border-box; font-size: 12px; font-weight: 700; color: #4B5A66; display: flex; align-items: center; justify-content: center">DE</span>
+<span style="font-size: 16px; flex: 1">Deutsch</span>
+</a>
+<a href="#Main" lang="it" style="text-decoration: none; color: #14212B; display: flex; align-items: center; gap: 12px; padding: 12px 14px; min-height: 52px; box-sizing: border-box; border-bottom: 1px solid #EEF1F3">
+<span style="width: 36px; height: 28px; border-radius: 8px; border: 1px solid #B8C1C8; box-sizing: border-box; font-size: 12px; font-weight: 700; color: #4B5A66; display: flex; align-items: center; justify-content: center">IT</span>
+<span style="font-size: 16px; flex: 1">Italiano</span>
+</a>
+<a href="#Main" lang="pl" style="text-decoration: none; color: #14212B; display: flex; align-items: center; gap: 12px; padding: 12px 14px; min-height: 52px; box-sizing: border-box; border-bottom: 1px solid #EEF1F3">
+<span style="width: 36px; height: 28px; border-radius: 8px; border: 1px solid #B8C1C8; box-sizing: border-box; font-size: 12px; font-weight: 700; color: #4B5A66; display: flex; align-items: center; justify-content: center">PL</span>
+<span style="font-size: 16px; flex: 1">Polski</span>
+</a>
+<a href="#Main" lang="es" style="text-decoration: none; color: #14212B; display: flex; align-items: center; gap: 12px; padding: 12px 14px; min-height: 52px; box-sizing: border-box">
+<span style="width: 36px; height: 28px; border-radius: 8px; border: 1px solid #B8C1C8; box-sizing: border-box; font-size: 12px; font-weight: 700; color: #4B5A66; display: flex; align-items: center; justify-content: center">ES</span>
+<span style="font-size: 16px; flex: 1">Español</span>
+</a>
+</div>
+<label style="display: flex; flex-direction: column; gap: 6px; font-size: 13px; font-weight: 600; color: #4B5A66">ZEMĚ, KDE JE BYT
+<select style="height: 48px; border-radius: 12px; border: 1px solid #D9DEE2; background: #FFFFFF; padding: 0 12px; font-family: inherit; font-size: 16px; color: #14212B"><option>Česko</option></select>
+</label>
+<div style="display: flex; gap: 8px; align-items: flex-start; font-size: 13px; line-height: 1.45; color: #4B5A66">
+<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#4B5A66" stroke-width="2" stroke-linecap="round" aria-hidden="true" style="flex-shrink: 0; margin-top: 2px"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8h.01"/></svg>
+<span>Jazyk mění texty aplikace. Pojišťovny, jejich pokyny a místní tísňové linky se řídí zemí, kde je byt. Linka 112 platí v celé EU.</span>
+</div>
+<a href="#Main" style="margin-top: auto; text-decoration: none; height: 52px; border-radius: 14px; background: #14212B; color: #FFFFFF; font-size: 16px; font-weight: 600; display: flex; align-items: center; justify-content: center">Hotovo</a>
+</div></section>
+<section class="screen" data-screen="Bezpecnost" aria-label="Prvních 15 minut" hidden><div style="width: 390px; height: 844px; box-sizing: border-box; background: #F4F6F7; font-family: 'IBM Plex Sans', system-ui, sans-serif; color: #14212B; display: flex; flex-direction: column; padding: 20px 20px 20px; gap: 16px">
+<div style="display: flex; align-items: center; gap: 12px">
+<a href="#Main" aria-label="Zpět" style="width: 44px; height: 44px; border-radius: 12px; border: 1px solid #D9DEE2; background: #FFFFFF; display: flex; align-items: center; justify-content: center">
+<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#14212B" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 6l-6 6 6 6"/></svg>
+</a>
+<div style="display: flex; flex-direction: column; gap: 2px">
+<span style="font-size: 13px; color: #4B5A66">Voda, vytopení · krok 1 z 6</span>
+<span style="font-size: 17px; font-weight: 600">Prvních 15 minut</span>
+</div>
+<svg width="28" height="28" viewBox="0 0 100 100" role="img" aria-label="Domovka" style="margin-left: auto"><path d="M50 6 L94 42 Q96 44 96 47 V90 Q96 94 92 94 H8 Q4 94 4 90 V47 Q4 44 6 42 Z" fill="#0B6B6B"/><circle cx="50" cy="52" r="15" fill="#F4F6F7"/><path d="M44 60 L39 86 H61 L56 60 Z" fill="#F4F6F7"/></svg>
+</div>
+<div style="display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 6px">
+<span style="height: 6px; border-radius: 3px; background: #B42318"></span>
+<span style="height: 6px; border-radius: 3px; background: #D9DEE2"></span>
+<span style="height: 6px; border-radius: 3px; background: #D9DEE2"></span>
+<span style="height: 6px; border-radius: 3px; background: #D9DEE2"></span>
+</div>
+<div style="display: flex; justify-content: space-between; font-size: 12px; font-weight: 600; color: #4B5A66; margin-top: -8px">
+<span style="color: #B42318">STOP</span><span>TEĎ</span><span>POTOM</span><span>HOTOVO</span>
+</div>
+<h1 style="margin: 0; font-size: 22px; line-height: 1.25; font-weight: 700">Nejdřív bezpečí. Odpovězte na tři otázky.</h1>
+<div style="background: #FFFFFF; border: 1px solid #D9DEE2; border-radius: 16px; padding: 16px; display: flex; flex-direction: column; gap: 12px">
+<span style="font-size: 16px; font-weight: 600; line-height: 1.35">Jsou všichni lidé a zvířata mimo nebezpečí?</span>
+<div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px">
+<button style="height: 48px; border-radius: 12px; border: 2px solid #0B6B6B; background: #E3F1F0; color: #0B4F4F; font-family: inherit; font-size: 16px; font-weight: 600">Ano</button>
+<button style="height: 48px; border-radius: 12px; border: 1px solid #D9DEE2; background: #FFFFFF; color: #14212B; font-family: inherit; font-size: 16px; font-weight: 500">Ne → volat 112</button>
+</div>
+</div>
+<div style="background: #FFFFFF; border: 1px solid #D9DEE2; border-radius: 16px; padding: 16px; display: flex; flex-direction: column; gap: 12px">
+<span style="font-size: 16px; font-weight: 600; line-height: 1.35">Hrozí elektřina, plyn nebo zřícení?</span>
+<span style="font-size: 14px; line-height: 1.4; color: #4B5A66">Voda u zásuvek, jiskření, zápach plynu, prohnutý strop.</span>
+<div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px">
+<button style="height: 48px; border-radius: 12px; border: 1px solid #D9DEE2; background: #FFFFFF; color: #14212B; font-family: inherit; font-size: 15px; font-weight: 500">Ano</button>
+<button style="height: 48px; border-radius: 12px; border: 2px solid #0B6B6B; background: #E3F1F0; color: #0B4F4F; font-family: inherit; font-size: 15px; font-weight: 600">Ne</button>
+<button style="height: 48px; border-radius: 12px; border: 1px solid #D9DEE2; background: #FFFFFF; color: #14212B; font-family: inherit; font-size: 15px; font-weight: 500">Nevím</button>
+</div>
+</div>
+<div style="background: #FFFFFF; border: 2px solid #0B6B6B; border-radius: 16px; padding: 16px; display: flex; flex-direction: column; gap: 12px">
+<span style="font-size: 16px; font-weight: 600; line-height: 1.35">Můžete bezpečně uzavřít přívod vody?</span>
+<span style="font-size: 14px; line-height: 1.4; color: #4B5A66">Jen bez vstupu do vody u elektřiny. Jinak volejte správce nebo havarijní službu.</span>
+<div style="display: flex; flex-direction: column; gap: 8px">
+<button style="height: 48px; border-radius: 12px; border: none; background: #0B6B6B; color: #FFFFFF; font-family: inherit; font-size: 16px; font-weight: 600">Uzavřeno – zapsat čas</button>
+<button style="height: 48px; border-radius: 12px; border: 1px solid #D9DEE2; background: #FFFFFF; color: #14212B; font-family: inherit; font-size: 15px; font-weight: 500">Nejde – kontakty na pomoc</button>
+</div>
+</div>
+<div style="margin-top: auto; display: flex; flex-direction: column; gap: 8px">
+<div style="display: flex; gap: 8px; align-items: flex-start; font-size: 13px; line-height: 1.4; color: #4B5A66">
+<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#4B5A66" stroke-width="2" stroke-linecap="round" aria-hidden="true" style="flex-shrink: 0; margin-top: 2px"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>
+<span>Každou odpověď ukládáme s časem do časové osy případu.</span>
+</div>
+<a href="#Pripad" style="text-decoration: none; height: 52px; border-radius: 14px; background: #14212B; color: #FFFFFF; font-size: 16px; font-weight: 600; display: flex; align-items: center; justify-content: center">Situace je stabilní – pokračovat</a>
+</div>
+</div></section>
+<section class="screen" data-screen="Pripad" aria-label="Můj případ" hidden><div style="width: 390px; height: 844px; box-sizing: border-box; background: #F4F6F7; font-family: 'IBM Plex Sans', system-ui, sans-serif; color: #14212B; display: flex; flex-direction: column; padding: 20px; gap: 14px">
+<div style="display: flex; align-items: center; justify-content: space-between">
+<a href="#Main" aria-label="Domů" style="width: 44px; height: 44px; border-radius: 12px; border: 1px solid #D9DEE2; background: #FFFFFF; display: flex; align-items: center; justify-content: center">
+<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#14212B" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 6l-6 6 6 6"/></svg>
+</a>
+<span style="display: flex; align-items: center; gap: 8px"><span style="font-size: 13px; color: #4B5A66">Uloženo v telefonu</span><svg width="28" height="28" viewBox="0 0 100 100" role="img" aria-label="Domovka"><path d="M50 6 L94 42 Q96 44 96 47 V90 Q96 94 92 94 H8 Q4 94 4 90 V47 Q4 44 6 42 Z" fill="#0B6B6B"/><circle cx="50" cy="52" r="15" fill="#F4F6F7"/><path d="M44 60 L39 86 H61 L56 60 Z" fill="#F4F6F7"/></svg></span>
+</div>
+<div style="display: flex; flex-direction: column; gap: 4px">
+<span style="font-size: 13px; font-weight: 600; color: #0B6B6B">PŘÍPAD SBZ-0428</span>
+<h1 style="margin: 0; font-size: 24px; line-height: 1.2; font-weight: 700">Voda v koupelně</h1>
+<span style="font-size: 14px; color: #4B5A66">Zjištěno dnes 07:30 · voda uzavřena 07:36</span>
+</div>
+<div style="background: #FFF4E5; border: 1px solid #F3C98B; border-radius: 14px; padding: 12px 14px; display: flex; gap: 10px; align-items: flex-start">
+<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#8A4B00" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="flex-shrink: 0; margin-top: 1px"><path d="M12 3l9 16H3z"/><path d="M12 10v4M12 17h.01"/></svg>
+<span style="font-size: 14px; line-height: 1.4; color: #5C3300"><b>Zasažen i byt pod vámi.</b> Přidali jsme větev Škoda někomu jinému. Nic neuznávejte ani neplaťte bez souhlasu pojišťovny.</span>
+</div>
+<div style="background: #FFFFFF; border: 1px solid #D9DEE2; border-radius: 16px; display: flex; flex-direction: column">
+<div style="display: flex; align-items: center; gap: 12px; padding: 12px 14px; border-bottom: 1px solid #EEF1F3">
+<span style="width: 28px; height: 28px; border-radius: 50%; background: #0B6B6B; display: flex; align-items: center; justify-content: center"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12l5 5 9-10"/></svg></span>
+<span style="font-size: 15px; flex: 1">Prvních 15 minut</span><span style="font-size: 13px; color: #4B5A66">hotovo</span>
+</div>
+<div style="display: flex; align-items: center; gap: 12px; padding: 12px 14px; border-bottom: 1px solid #EEF1F3">
+<span style="width: 28px; height: 28px; border-radius: 50%; background: #0B6B6B; display: flex; align-items: center; justify-content: center"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12l5 5 9-10"/></svg></span>
+<span style="font-size: 15px; flex: 1">První hodina a kontakty</span><span style="font-size: 13px; color: #4B5A66">hotovo</span>
+</div>
+<a href="#Foto" style="text-decoration: none; color: #14212B; display: flex; align-items: center; gap: 12px; padding: 12px 14px; border-bottom: 1px solid #EEF1F3; background: #E3F1F0">
+<span style="width: 28px; height: 28px; border-radius: 50%; border: 2px solid #0B6B6B; box-sizing: border-box; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 700; color: #0B6B6B">3</span>
+<span style="font-size: 15px; font-weight: 600; flex: 1">Fotodokumentace</span><span style="font-size: 13px; font-weight: 600; color: #0B4F4F">6 z 9 →</span>
+</a>
+<div style="display: flex; align-items: center; gap: 12px; padding: 12px 14px; border-bottom: 1px solid #EEF1F3">
+<span style="width: 28px; height: 28px; border-radius: 50%; border: 1px solid #B8C1C8; box-sizing: border-box; display: flex; align-items: center; justify-content: center; font-size: 13px; color: #4B5A66">4</span>
+<span style="font-size: 15px; flex: 1">Co zachovat a nutné práce</span><span style="font-size: 13px; color: #4B5A66">1 zásah</span>
+</div>
+<a href="#Soupis" style="text-decoration: none; color: #14212B; display: flex; align-items: center; gap: 12px; padding: 12px 14px; border-bottom: 1px solid #EEF1F3">
+<span style="width: 28px; height: 28px; border-radius: 50%; border: 1px solid #B8C1C8; box-sizing: border-box; display: flex; align-items: center; justify-content: center; font-size: 13px; color: #4B5A66">5</span>
+<span style="font-size: 15px; flex: 1">Soupis věcí a stavby</span><span style="font-size: 13px; color: #4B5A66">3 položky</span>
+</a>
+<div style="display: flex; align-items: center; gap: 12px; padding: 12px 14px; border-bottom: 1px solid #EEF1F3">
+<span style="width: 28px; height: 28px; border-radius: 50%; border: 1px solid #B8C1C8; box-sizing: border-box; display: flex; align-items: center; justify-content: center; font-size: 13px; color: #4B5A66">6</span>
+<span style="font-size: 15px; flex: 1">Soused a odpovědnost</span><span style="font-size: 13px; color: #4B5A66">kontakt chybí</span>
+</div>
+<a href="#Hlaseni" style="text-decoration: none; color: #14212B; display: flex; align-items: center; gap: 12px; padding: 12px 14px; border-bottom: 1px solid #EEF1F3">
+<span style="width: 28px; height: 28px; border-radius: 50%; border: 1px solid #B8C1C8; box-sizing: border-box; display: flex; align-items: center; justify-content: center; font-size: 13px; color: #4B5A66">7</span>
+<span style="font-size: 15px; flex: 1">Hlášení pojišťovně</span><span style="font-size: 13px; color: #4B5A66">připravit</span>
+</a>
+<div style="display: flex; align-items: center; gap: 12px; padding: 12px 14px">
+<span style="width: 28px; height: 28px; border-radius: 50%; border: 1px solid #B8C1C8; box-sizing: border-box; display: flex; align-items: center; justify-content: center; font-size: 13px; color: #4B5A66">8</span>
+<span style="font-size: 15px; flex: 1">Po nahlášení</span><span style="font-size: 13px; color: #4B5A66"></span>
+</div>
+</div>
+<div style="display: flex; flex-direction: column; gap: 8px">
+<span style="font-size: 13px; font-weight: 600; color: #4B5A66">ČASOVÁ OSA</span>
+<div style="display: flex; gap: 12px; font-size: 14px"><span style="width: 44px; color: #4B5A66">07:30</span><span>Zjištěna voda pod umyvadlem</span></div>
+<div style="display: flex; gap: 12px; font-size: 14px"><span style="width: 44px; color: #4B5A66">07:36</span><span>Uzavřen hlavní přívod vody</span></div>
+<div style="display: flex; gap: 12px; font-size: 14px"><span style="width: 44px; color: #4B5A66">07:41</span><span>Volán správce domu</span></div>
+</div>
+<a href="#Foto" style="margin-top: auto; text-decoration: none; height: 52px; border-radius: 14px; background: #14212B; color: #FFFFFF; font-size: 16px; font-weight: 600; display: flex; align-items: center; justify-content: center">Pokračovat: fotodokumentace</a>
+</div></section>
+<section class="screen" data-screen="Foto" aria-label="Fotodokumentace" hidden><div style="width: 390px; height: 844px; box-sizing: border-box; background: #F4F6F7; font-family: 'IBM Plex Sans', system-ui, sans-serif; color: #14212B; display: flex; flex-direction: column; padding: 20px; gap: 14px">
+<div style="display: flex; align-items: center; gap: 12px">
+<a href="#Pripad" aria-label="Zpět na případ" style="width: 44px; height: 44px; border-radius: 12px; border: 1px solid #D9DEE2; background: #FFFFFF; display: flex; align-items: center; justify-content: center">
+<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#14212B" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 6l-6 6 6 6"/></svg>
+</a>
+<div style="display: flex; flex-direction: column; gap: 2px">
+<span style="font-size: 13px; color: #4B5A66">Krok 3 · 6 z 9 snímků</span>
+<span style="font-size: 17px; font-weight: 600">Fotodokumentace</span>
+</div>
+<svg width="28" height="28" viewBox="0 0 100 100" role="img" aria-label="Domovka" style="margin-left: auto"><path d="M50 6 L94 42 Q96 44 96 47 V90 Q96 94 92 94 H8 Q4 94 4 90 V47 Q4 44 6 42 Z" fill="#0B6B6B"/><circle cx="50" cy="52" r="15" fill="#F4F6F7"/><path d="M44 60 L39 86 H61 L56 60 Z" fill="#F4F6F7"/></svg>
+</div>
+<div style="display: flex; gap: 8px; align-items: center; font-size: 13px; color: #4B5A66">
+<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#4B5A66" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l9 16H3z"/><path d="M12 10v4M12 17h.01"/></svg>
+<span>Foťte jen z bezpečného místa. Nevstupujte do vody u elektřiny.</span>
+</div>
+<div style="background: #FFFFFF; border: 2px solid #0B6B6B; border-radius: 16px; padding: 16px; display: flex; flex-direction: column; gap: 10px">
+<span style="font-size: 13px; font-weight: 600; color: #0B6B6B">DALŠÍ ZÁBĚR</span>
+<span style="font-size: 18px; font-weight: 700; line-height: 1.3">Štítek pračky nebo myčky</span>
+<span style="font-size: 14px; line-height: 1.45; color: #4B5A66">Značka, model a sériové číslo. Obvykle uvnitř dvířek nebo na zadní straně.</span>
+<button style="height: 52px; border-radius: 14px; border: none; background: #0B6B6B; color: #FFFFFF; font-family: inherit; font-size: 16px; font-weight: 600; display: flex; align-items: center; justify-content: center; gap: 10px">
+<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></svg>
+Vyfotit
+</button>
+</div>
+<div style="display: flex; flex-direction: column; gap: 8px">
+<span style="font-size: 13px; font-weight: 600; color: #4B5A66">POVINNÁ SÉRIE</span>
+<div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px">
+<div style="display: flex; flex-direction: column; gap: 4px">
+<div style="height: 84px; border-radius: 10px; background: #C9D6DC; display: flex; align-items: flex-end; padding: 6px; box-sizing: border-box"><span style="font-size: 11px; font-weight: 600; background: rgba(255,255,255,0.9); border-radius: 6px; padding: 2px 6px">07:44</span></div>
+<span style="font-size: 13px; font-weight: 500">Celek ✓</span>
+</div>
+<div style="display: flex; flex-direction: column; gap: 4px">
+<div style="height: 84px; border-radius: 10px; background: #BFCDD4; display: flex; align-items: flex-end; padding: 6px; box-sizing: border-box"><span style="font-size: 11px; font-weight: 600; background: rgba(255,255,255,0.9); border-radius: 6px; padding: 2px 6px">07:45</span></div>
+<span style="font-size: 13px; font-weight: 500">Kontext ✓</span>
+</div>
+<div style="display: flex; flex-direction: column; gap: 4px">
+<div style="height: 84px; border-radius: 10px; background: #B4C4CC; display: flex; align-items: flex-end; padding: 6px; box-sizing: border-box"><span style="font-size: 11px; font-weight: 600; background: rgba(255,255,255,0.9); border-radius: 6px; padding: 2px 6px">07:46</span></div>
+<span style="font-size: 13px; font-weight: 500">Příčina ✓</span>
+</div>
+<div style="display: flex; flex-direction: column; gap: 4px">
+<div style="height: 84px; border-radius: 10px; background: #C9D6DC; display: flex; align-items: flex-end; padding: 6px; box-sizing: border-box"><span style="font-size: 11px; font-weight: 600; background: rgba(255,255,255,0.9); border-radius: 6px; padding: 2px 6px">07:47</span></div>
+<span style="font-size: 13px; font-weight: 500">Detail ✓</span>
+</div>
+<div style="display: flex; flex-direction: column; gap: 4px">
+<div style="height: 84px; border-radius: 10px; border: 2px dashed #0B6B6B; box-sizing: border-box; display: flex; align-items: center; justify-content: center; background: #E3F1F0"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#0B6B6B" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg></div>
+<span style="font-size: 13px; font-weight: 600; color: #0B4F4F">Identifikátor</span>
+</div>
+<div style="display: flex; flex-direction: column; gap: 4px">
+<div style="height: 84px; border-radius: 10px; border: 1px dashed #B8C1C8; box-sizing: border-box; background: #FFFFFF"></div>
+<span style="font-size: 13px; color: #4B5A66">Po zásahu</span>
+</div>
+</div>
+</div>
+<div style="background: #FFFFFF; border: 1px solid #D9DEE2; border-radius: 14px; padding: 12px 14px; display: flex; flex-direction: column; gap: 8px">
+<span style="font-size: 14px; font-weight: 600">Automaticky u každé fotky</span>
+<span style="font-size: 14px; line-height: 1.45; color: #4B5A66">Původní datum a čas, místnost, vazba na položku soupisu. Originál neupravujeme a zálohujeme v telefonu.</span>
+</div>
+<div style="margin-top: auto; display: flex; gap: 8px">
+<button style="flex: 1; height: 52px; border-radius: 14px; border: 1px solid #D9DEE2; background: #FFFFFF; color: #14212B; font-family: inherit; font-size: 15px; font-weight: 500">Teď nejde</button>
+<a href="#Soupis" style="flex: 1.4; text-decoration: none; height: 52px; border-radius: 14px; background: #14212B; color: #FFFFFF; font-size: 16px; font-weight: 600; display: flex; align-items: center; justify-content: center">Na soupis věcí</a>
+</div>
+</div></section>
+<section class="screen" data-screen="Soupis" aria-label="Soupis věcí" hidden><div style="width: 390px; height: 844px; box-sizing: border-box; background: #F4F6F7; font-family: 'IBM Plex Sans', system-ui, sans-serif; color: #14212B; display: flex; flex-direction: column; padding: 20px; gap: 14px">
+<div style="display: flex; align-items: center; gap: 12px">
+<a href="#Pripad" aria-label="Zpět na případ" style="width: 44px; height: 44px; border-radius: 12px; border: 1px solid #D9DEE2; background: #FFFFFF; display: flex; align-items: center; justify-content: center">
+<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#14212B" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 6l-6 6 6 6"/></svg>
+</a>
+<div style="display: flex; flex-direction: column; gap: 2px">
+<span style="font-size: 13px; color: #4B5A66">Krok 5</span>
+<span style="font-size: 17px; font-weight: 600">Soupis věcí a stavby</span>
+</div>
+<svg width="28" height="28" viewBox="0 0 100 100" role="img" aria-label="Domovka" style="margin-left: auto"><path d="M50 6 L94 42 Q96 44 96 47 V90 Q96 94 92 94 H8 Q4 94 4 90 V47 Q4 44 6 42 Z" fill="#0B6B6B"/><circle cx="50" cy="52" r="15" fill="#F4F6F7"/><path d="M44 60 L39 86 H61 L56 60 Z" fill="#F4F6F7"/></svg>
+</div>
+<div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 4px; background: #E6EAED; border-radius: 12px; padding: 4px">
+<button style="height: 40px; border-radius: 9px; border: none; background: #FFFFFF; color: #14212B; font-family: inherit; font-size: 15px; font-weight: 600">Věci (2)</button>
+<button style="height: 40px; border-radius: 9px; border: none; background: transparent; color: #4B5A66; font-family: inherit; font-size: 15px; font-weight: 500">Stavba (1)</button>
+</div>
+<div style="background: #FFFFFF; border: 1px solid #D9DEE2; border-radius: 16px; padding: 14px; display: flex; flex-direction: column; gap: 10px">
+<div style="display: flex; gap: 12px; align-items: center">
+<div style="width: 56px; height: 56px; border-radius: 10px; background: #C9D6DC; flex-shrink: 0"></div>
+<div style="display: flex; flex-direction: column; gap: 2px; flex: 1">
+<span style="font-size: 16px; font-weight: 600">Pračka Bosch Serie 6</span>
+<span style="font-size: 13px; color: #4B5A66">Voda v elektronice · 3 fotky</span>
+</div>
+</div>
+<div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; font-size: 13px">
+<div style="display: flex; flex-direction: column; gap: 2px"><span style="color: #4B5A66">Stáří</span><span style="font-weight: 600">4 roky</span></div>
+<div style="display: flex; flex-direction: column; gap: 2px"><span style="color: #4B5A66">Cena</span><span style="font-weight: 600">12 990 Kč</span></div>
+<div style="display: flex; flex-direction: column; gap: 2px"><span style="color: #4B5A66">Doklad</span><span style="font-weight: 600; color: #0B4F4F">faktura ✓</span></div>
+</div>
+</div>
+<div style="background: #FFFFFF; border: 1px solid #D9DEE2; border-radius: 16px; padding: 14px; display: flex; flex-direction: column; gap: 10px">
+<div style="display: flex; gap: 12px; align-items: center">
+<div style="width: 56px; height: 56px; border-radius: 10px; background: #BFCDD4; flex-shrink: 0"></div>
+<div style="display: flex; flex-direction: column; gap: 2px; flex: 1">
+<span style="font-size: 16px; font-weight: 600">Koberec v předsíni</span>
+<span style="font-size: 13px; color: #4B5A66">Nasáklý · 2 fotky</span>
+</div>
+</div>
+<div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; font-size: 13px">
+<div style="display: flex; flex-direction: column; gap: 2px"><span style="color: #4B5A66">Stáří</span><span style="font-weight: 600">nevím</span></div>
+<div style="display: flex; flex-direction: column; gap: 2px"><span style="color: #4B5A66">Cena</span><span style="font-weight: 600">nevím</span></div>
+<div style="display: flex; flex-direction: column; gap: 2px"><span style="color: #4B5A66">Doklad</span><span style="font-weight: 600; color: #8A4B00">chybí</span></div>
+</div>
+<div style="background: #FFF4E5; border-radius: 10px; padding: 10px 12px; font-size: 13px; line-height: 1.45; color: #5C3300">Nemáte účtenku? Přidejte výpis z účtu, fotku z doby před škodou nebo krátké vysvětlení. O přijetí rozhoduje pojišťovna.</div>
+</div>
+<button style="height: 52px; border-radius: 14px; border: 2px dashed #0B6B6B; background: transparent; color: #0B4F4F; font-family: inherit; font-size: 16px; font-weight: 600; display: flex; align-items: center; justify-content: center; gap: 8px">
+<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#0B6B6B" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>
+Přidat věc
+</button>
+<div style="margin-top: auto; display: flex; flex-direction: column; gap: 10px">
+<div style="display: flex; justify-content: space-between; align-items: baseline; padding: 0 2px">
+<span style="font-size: 14px; color: #4B5A66">Orientační odhad</span>
+<span style="font-size: 16px; font-weight: 700">12 990 Kč + nevím</span>
+</div>
+<span style="font-size: 12px; line-height: 1.4; color: #4B5A66">Odhad je jen váš údaj pro hlášení, ne ocenění škody.</span>
+<a href="#Hlaseni" style="text-decoration: none; height: 52px; border-radius: 14px; background: #14212B; color: #FFFFFF; font-size: 16px; font-weight: 600; display: flex; align-items: center; justify-content: center">Připravit hlášení</a>
+</div>
+</div></section>
+<section class="screen" data-screen="Hlaseni" aria-label="Hlášení pojišťovně" hidden><div style="width: 390px; height: 844px; box-sizing: border-box; background: #F4F6F7; font-family: 'IBM Plex Sans', system-ui, sans-serif; color: #14212B; display: flex; flex-direction: column; padding: 20px; gap: 14px">
+<div style="display: flex; align-items: center; gap: 12px">
+<a href="#Pripad" aria-label="Zpět na případ" style="width: 44px; height: 44px; border-radius: 12px; border: 1px solid #D9DEE2; background: #FFFFFF; display: flex; align-items: center; justify-content: center">
+<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#14212B" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 6l-6 6 6 6"/></svg>
+</a>
+<div style="display: flex; flex-direction: column; gap: 2px">
+<span style="font-size: 13px; color: #4B5A66">Krok 7</span>
+<span style="font-size: 17px; font-weight: 600">Hlášení pojišťovně</span>
+</div>
+<svg width="28" height="28" viewBox="0 0 100 100" role="img" aria-label="Domovka" style="margin-left: auto"><path d="M50 6 L94 42 Q96 44 96 47 V90 Q96 94 92 94 H8 Q4 94 4 90 V47 Q4 44 6 42 Z" fill="#0B6B6B"/><circle cx="50" cy="52" r="15" fill="#F4F6F7"/><path d="M44 60 L39 86 H61 L56 60 Z" fill="#F4F6F7"/></svg>
+</div>
+<label style="display: flex; flex-direction: column; gap: 6px; font-size: 13px; font-weight: 600; color: #4B5A66">VAŠE POJIŠŤOVNA
+<select style="height: 48px; border-radius: 12px; border: 1px solid #D9DEE2; background: #FFFFFF; padding: 0 12px; font-family: inherit; font-size: 16px; color: #14212B"><option>[název pojišťovny]</option></select>
+</label>
+<div style="background: #FFFFFF; border: 1px solid #D9DEE2; border-radius: 16px; padding: 14px; display: flex; flex-direction: column; gap: 10px">
+<div style="display: flex; justify-content: space-between; align-items: baseline">
+<span style="font-size: 15px; font-weight: 600">Připravenost</span>
+<span style="font-size: 14px; font-weight: 600; color: #0B4F4F">7 z 9</span>
+</div>
+<div style="height: 8px; border-radius: 4px; background: #E6EAED; display: flex"><span style="width: 78%; border-radius: 4px; background: #0B6B6B"></span></div>
+<div style="display: flex; flex-direction: column; gap: 6px; font-size: 14px">
+<div style="display: flex; justify-content: space-between"><span>Číslo smlouvy</span><span style="color: #8A4B00; font-weight: 500">nevím – lze doplnit</span></div>
+<div style="display: flex; justify-content: space-between"><span>Kontakt na souseda</span><span style="color: #8A4B00; font-weight: 500">chybí</span></div>
+</div>
+</div>
+<div style="background: #FFFFFF; border: 2px solid #0B6B6B; border-radius: 16px; padding: 14px; display: flex; flex-direction: column; gap: 10px">
+<span style="font-size: 13px; font-weight: 600; color: #0B6B6B">DOPORUČENO · E-MAIL</span>
+<div style="background: #F4F6F7; border-radius: 10px; padding: 10px 12px; display: flex; flex-direction: column; gap: 4px; font-size: 13px; line-height: 1.4">
+<span><b>Komu:</b> [oficiální adresa pro škody]</span>
+<span><b>Předmět:</b> Oznámení škody – voda – 28. 10. 2026</span>
+<span><b>Přílohy:</b> Hlaseni_SBZ-0428.pdf, 6 fotek, soupis</span>
+</div>
+<span style="font-size: 12px; color: #4B5A66">Adresa ověřena na oficiálním webu pojišťovny dne [datum kontroly]</span>
+<button style="height: 52px; border-radius: 14px; border: none; background: #0B6B6B; color: #FFFFFF; font-family: inherit; font-size: 16px; font-weight: 600">Otevřít e-mail k odeslání</button>
+</div>
+<div style="background: #FFFFFF; border: 1px solid #D9DEE2; border-radius: 16px; padding: 14px; display: flex; align-items: center; gap: 12px">
+<div style="display: flex; flex-direction: column; gap: 2px; flex: 1">
+<span style="font-size: 15px; font-weight: 600">Raději online formulář</span>
+<span style="font-size: 13px; line-height: 1.4; color: #4B5A66">Otevřeme oficiální stránku, údaje máte připravené ke zkopírování po polích.</span>
+</div>
+<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#14212B" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 4h6v6M20 4l-9 9M18 14v6H4V6h6"/></svg>
+</div>
+<div style="margin-top: auto; display: flex; flex-direction: column; gap: 10px">
+<div style="display: flex; gap: 8px; align-items: flex-start; font-size: 13px; line-height: 1.4; color: #4B5A66">
+<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#4B5A66" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="flex-shrink: 0; margin-top: 2px"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>
+<span>Odesíláte ze své schránky. Aplikace vaše data nikam neposílá. Popisujte fakta; o krytí rozhoduje pojišťovna.</span>
+</div>
+<a href="#Potvrzeni" style="text-decoration: none; height: 52px; border-radius: 14px; background: #14212B; color: #FFFFFF; font-size: 16px; font-weight: 600; display: flex; align-items: center; justify-content: center">Odesláno – zapsat potvrzení</a>
+</div>
+</div></section>
+<section class="screen" data-screen="Potvrzeni" aria-label="Potvrzení a číslo škody" hidden><div style="width: 390px; height: 844px; box-sizing: border-box; background: #F4F6F7; font-family: 'IBM Plex Sans', system-ui, sans-serif; color: #14212B; display: flex; flex-direction: column; padding: 20px; gap: 14px">
+<div style="display: flex; align-items: center; gap: 12px">
+<a href="#Hlaseni" aria-label="Zpět" style="width: 44px; height: 44px; border-radius: 12px; border: 1px solid #D9DEE2; background: #FFFFFF; display: flex; align-items: center; justify-content: center">
+<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#14212B" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 6l-6 6 6 6"/></svg>
+</a>
+<div style="display: flex; flex-direction: column; gap: 2px">
+<span style="font-size: 13px; color: #4B5A66">Krok 8</span>
+<span style="font-size: 17px; font-weight: 600">Potvrzení a další kroky</span>
+</div>
+<svg width="28" height="28" viewBox="0 0 100 100" role="img" aria-label="Domovka" style="margin-left: auto"><path d="M50 6 L94 42 Q96 44 96 47 V90 Q96 94 92 94 H8 Q4 94 4 90 V47 Q4 44 6 42 Z" fill="#0B6B6B"/><circle cx="50" cy="52" r="15" fill="#F4F6F7"/><path d="M44 60 L39 86 H61 L56 60 Z" fill="#F4F6F7"/></svg>
+</div>
+<div style="display: flex; flex-direction: column; gap: 6px">
+<h1 style="margin: 0; font-size: 22px; line-height: 1.25; font-weight: 700">Bez potvrzení není hotovo.</h1>
+<p style="margin: 0; font-size: 15px; line-height: 1.45; color: #4B5A66">Až vám pojišťovna pošle číslo škody, zapište ho sem. Doplníme ho do všech podkladů.</p>
+</div>
+<label style="display: flex; flex-direction: column; gap: 6px; font-size: 13px; font-weight: 600; color: #4B5A66">ČÍSLO ŠKODY / UDÁLOSTI
+<input type="text" placeholder="např. z e-mailu nebo SMS" style="height: 52px; border-radius: 12px; border: 2px solid #0B6B6B; background: #FFFFFF; padding: 0 14px; font-family: inherit; font-size: 17px; color: #14212B; box-sizing: border-box">
+</label>
+<div style="display: flex; flex-direction: column; gap: 6px">
+<span style="font-size: 13px; font-weight: 600; color: #4B5A66">POTVRZENÍ PŘIŠLO</span>
+<div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px">
+<button style="height: 44px; border-radius: 12px; border: 2px solid #0B6B6B; background: #E3F1F0; color: #0B4F4F; font-family: inherit; font-size: 15px; font-weight: 600">E-mail</button>
+<button style="height: 44px; border-radius: 12px; border: 1px solid #D9DEE2; background: #FFFFFF; color: #14212B; font-family: inherit; font-size: 15px">SMS</button>
+<button style="height: 44px; border-radius: 12px; border: 1px solid #D9DEE2; background: #FFFFFF; color: #14212B; font-family: inherit; font-size: 15px">Portál</button>
+</div>
+</div>
+<button style="height: 48px; border-radius: 12px; border: 1px dashed #B8C1C8; background: #FFFFFF; color: #14212B; font-family: inherit; font-size: 15px; font-weight: 500">Uložit snímek potvrzení</button>
+<div style="background: #FFFFFF; border: 1px solid #D9DEE2; border-radius: 16px; padding: 14px; display: flex; flex-direction: column; gap: 10px">
+<span style="font-size: 15px; font-weight: 600">Co pojišťovna chce doplnit</span>
+<div style="display: flex; justify-content: space-between; gap: 12px; font-size: 14px"><span>Fotka štítku pračky</span><span style="color: #4B5A66">do [termín]</span></div>
+<div style="display: flex; justify-content: space-between; gap: 12px; font-size: 14px"><span>Prohlídka technikem</span><span style="color: #4B5A66">[datum]</span></div>
+<button style="height: 44px; border-radius: 12px; border: 1px solid #D9DEE2; background: #FFFFFF; color: #0B4F4F; font-family: inherit; font-size: 15px; font-weight: 600">+ Přidat požadavek</button>
+</div>
+<div style="background: #FFF4E5; border: 1px solid #F3C98B; border-radius: 14px; padding: 12px 14px; font-size: 14px; line-height: 1.45; color: #5C3300">S finální opravou počkejte na pokyn pojišťovny. Mlčení neznamená souhlas.</div>
+<div style="margin-top: auto; display: flex; flex-direction: column; gap: 8px">
+<a href="#Pripad" style="text-decoration: none; height: 52px; border-radius: 14px; background: #14212B; color: #FFFFFF; font-size: 16px; font-weight: 600; display: flex; align-items: center; justify-content: center">Uložit a sledovat případ</a>
+<span style="font-size: 12px; line-height: 1.4; color: #4B5A66; text-align: center">Spor, zranění nebo vysoká škoda? Případ přesahuje MINI – nabídneme další postup.</span>
+</div>
+</div></section>
+</div></div>
+<button class="menu-btn" id="menuBtn" type="button" aria-label="Seznam obrazovek" aria-haspopup="dialog"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M5 7h14M5 12h14M5 17h14"/></svg></button>
+<div class="sheet" id="sheet" hidden role="dialog" aria-modal="true" aria-labelledby="sheetTitle">
+<div class="panel">
+<div class="phead"><h2 id="sheetTitle">Obrazovky Domovky</h2><button class="close" id="closeBtn" type="button" aria-label="Zavřít seznam"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>Zavřít</button></div>
+<div class="grp">PREVENCE</div><a class="mi" href="#Domov"><span>Domov</span></a><a class="mi" href="#Trezor"><span>Můj trezor</span></a><a class="mi" href="#Pasport"><span>Pasport bytu</span></a><a class="mi" href="#Mapa"><span>Mapa domácnosti</span></a>
+<div class="grp">STALA SE ŠKODA</div><a class="mi" href="#Main"><span>Co se stalo</span></a><a class="mi" href="#Jazyk"><span>Jazyk a země</span></a><a class="mi" href="#Bezpecnost"><span>Prvních 15 minut</span></a><a class="mi" href="#Pripad"><span>Můj případ</span></a><a class="mi" href="#Foto"><span>Fotodokumentace</span></a><a class="mi" href="#Soupis"><span>Soupis věcí</span></a><a class="mi" href="#Hlaseni"><span>Hlášení pojišťovně</span></a><a class="mi" href="#Potvrzeni"><span>Potvrzení a číslo škody</span></a>
+<p class="hint">Tlačítka a odkazy v aplikaci přepínají obrazovky. Na počítači fungují i šipky vlevo a vpravo. Hodnoty v hranatých závorkách jsou zástupné.</p>
+</div></div>
+<script>
+(function(){
+var order=["Domov", "Trezor", "Pasport", "Mapa", "Main", "Jazyk", "Bezpecnost", "Pripad", "Foto", "Soupis", "Hlaseni", "Potvrzeni"];
+var screens={};
+document.querySelectorAll('[data-screen]').forEach(function(s){screens[s.dataset.screen]=s;});
+var dev=document.getElementById('device'),stage=document.getElementById('stage');
+var cur=(function(){var h=(location.hash||'').slice(1);return screens[h]?h:'Domov';})();
+function current(){return cur;}
+function closeSheet(){var sh=document.getElementById('sheet');sh.classList.remove('open');sh.hidden=true;}
+function openSheet(){var sh=document.getElementById('sheet');sh.hidden=false;sh.classList.add('open');}
+function go(n){if(!screens[n])return;cur=n;show();try{if(location.hash!=='#'+n)location.hash=n;}catch(e){}}
+function show(){var c=current();Object.keys(screens).forEach(function(k){screens[k].hidden=(k!==c);});
+document.querySelectorAll('.mi').forEach(function(a){if(a.getAttribute('href')==='#'+c)a.setAttribute('aria-current','page');else a.removeAttribute('aria-current');});
+closeSheet();}
+function fit(){var cs=getComputedStyle(stage);var w=stage.clientWidth-parseFloat(cs.paddingLeft)-parseFloat(cs.paddingRight);var h=stage.clientHeight-parseFloat(cs.paddingTop)-parseFloat(cs.paddingBottom);var s=Math.min(w/390,h/844);if(window.innerWidth>520)s=Math.min(s,1);dev.style.transform='scale('+s+')';}
+window.addEventListener('hashchange',function(){var h=(location.hash||'').slice(1);if(screens[h]&&h!==cur){cur=h;show();}});
+document.addEventListener('click',function(e){var a=e.target.closest&&e.target.closest('a[href^="#"]');if(!a)return;var n=a.getAttribute('href').slice(1);if(!screens[n])return;e.preventDefault();closeSheet();go(n);});window.addEventListener('resize',fit);
+document.getElementById('menuBtn').addEventListener('click',openSheet);
+document.getElementById('closeBtn').addEventListener('click',closeSheet);
+document.getElementById('sheet').addEventListener('click',function(e){if(e.target.id==='sheet')closeSheet();});
+document.addEventListener('keydown',function(e){if(e.key==='Escape'){closeSheet();return;}
+if(e.target.closest&&e.target.closest('input,select,textarea'))return;var i=order.indexOf(current());
+if(e.key==='ArrowRight')go(order[(i+1)%order.length]);if(e.key==='ArrowLeft')go(order[(i-1+order.length)%order.length]);});
+show();fit();
+})();
+</script>
+<script>if("serviceWorker" in navigator){window.addEventListener("load",function(){navigator.serviceWorker.register("sw.js").catch(function(){});});}</script>
+</body>
+</html>
