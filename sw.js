@@ -1,5 +1,5 @@
 // Offline režim prototypu Domovka. Při změně souborů zvyšte číslo verze.
-const CACHE = "domovka-prototyp-v2";
+const CACHE = "domovka-prototyp-v3";
 const FILES = [
   "./",
   "index.html",
